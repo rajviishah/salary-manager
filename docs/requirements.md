@@ -1,4 +1,6 @@
-# ACME Salary Manager — Product Requirements
+# ACME Salary Manager 
+
+# Product Requirements
 
 ## Goal
 
