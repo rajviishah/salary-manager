@@ -95,4 +95,13 @@ The seed is deterministic (`random` + Faker seeded at 42) and idempotent: if 10,
 
 A partial database (more than 0 but fewer than 10,000 employees) is refused unless you pass `--reset`, so unique employee numbers and emails are not duplicated.
 
+## Tests
+
+From `backend/` (uses a fresh in-memory SQLite per test; does not touch `data/salary.db`):
+
+```powershell
+cd backend
+python -m pytest -q
+```
+
 The UI is not built yet.
