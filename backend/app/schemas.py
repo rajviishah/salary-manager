@@ -94,3 +94,19 @@ class FxRateRead(BaseModel):
     currency: str
     usd_rate: Money
     as_of: date
+
+
+class EmployeeListResponse(BaseModel):
+    items: list[EmployeeRead]
+    total: int
+    page: int
+    page_size: int
+
+
+class LookupsRead(BaseModel):
+    countries: list[str]
+    departments: list[str]
+    job_levels: list[str]
+    statuses: list[str]
+    currencies: list[str]
+

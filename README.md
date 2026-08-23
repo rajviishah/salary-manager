@@ -2,7 +2,7 @@
 
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
-**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee APIs and the UI are next.
+**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee REST APIs are available under `/api`. The UI is next.
 
 ## Run the API locally (Windows PowerShell)
 
@@ -36,6 +36,25 @@ There is no frontend yet. The browser at `/` should show JSON, not a website.
 
 Optional: copy `.env.example` to `.env` to override `DATABASE_URL` or `CORS_ORIGINS`. Defaults already point at `backend/data/salary.db` and `http://localhost:5173`.
 
+## API
+
+Interactive docs: http://127.0.0.1:8000/docs (Swagger UI).
+
+Paginated employee list (never returns all 10k rows; default `page_size` 25, max 100). Nested `salary` is included. Search `q` matches name, email, or employee number (case-insensitive). Filters are exact. Sort fields: `last_name` (default), `employee_number`, `hire_date`, `amount`; prefix `-` for descending.
+
+```
+GET /api/employees
+GET /api/employees?q=EMP00001
+GET /api/employees?country=India&department=Engineering&job_level=IC3&status=active
+GET /api/employees?page=2&page_size=25&sort=-hire_date
+GET /api/employees/1
+GET /api/lookups
+```
+
+Writes: `POST /api/employees` (profile + starting salary, `201`), `PATCH /api/employees/{id}` (profile), `PATCH /api/employees/{id}/salary` (current salary). Duplicate email or employee number returns `409`. Unknown currency or non-positive amount returns `400`. Missing id returns `404`.
+
+Filter dropdown values come from `GET /api/lookups` (`countries`, `departments`, `job_levels`, `statuses` from employees; `currencies` from `fx_rates`).
+
 ## Seed the database
 
 From `backend/` (same directory as the venv and SQLite file):
@@ -62,4 +81,4 @@ The seed is deterministic (`random` + Faker seeded at 42) and idempotent: if 10,
 
 A partial database (more than 0 but fewer than 10,000 employees) is refused unless you pass `--reset`, so unique employee numbers and emails are not duplicated.
 
-This slice is seed-only: there is still no employee API and no UI.
+The UI is not built yet.
