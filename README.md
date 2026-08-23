@@ -2,7 +2,7 @@
 
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
-This commit is the backend scaffold: FastAPI boots against SQLite and exposes a health check. Employee APIs, seed data, analytics, frontend, Docker, and deploy config come later.
+**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). Seed data and employee APIs are next.
 
 ## Run the API locally (Windows PowerShell)
 
