@@ -10,7 +10,8 @@ from sqlalchemy import text
 from app import models as _models  # noqa: F401 — register metadata
 from app.config import settings
 from app.database import Base, engine
-from app.routers import employees
+from app.routers import analytics, employees
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -29,6 +30,7 @@ app.add_middleware(
 )
 
 app.include_router(employees.router)
+app.include_router(analytics.router)
 
 
 @app.exception_handler(RequestValidationError)

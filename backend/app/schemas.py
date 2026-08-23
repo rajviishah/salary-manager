@@ -110,3 +110,44 @@ class LookupsRead(BaseModel):
     statuses: list[str]
     currencies: list[str]
 
+
+class CurrencyMixItem(BaseModel):
+    currency: str
+    headcount: int
+    total_local: Money
+
+
+class AnalyticsSummary(BaseModel):
+    headcount: int
+    total_usd: Money
+    avg_usd: Money
+    median_usd: Money
+    p90_usd: Money
+    min_usd: Money
+    max_usd: Money
+    currency_mix: list[CurrencyMixItem]
+
+
+class AnalyticsByCountry(BaseModel):
+    country: str
+    headcount: int
+    total_usd: Money
+    avg_usd: Money
+    median_usd: Money
+
+
+class AnalyticsByDepartment(BaseModel):
+    department: str
+    headcount: int
+    total_usd: Money
+    avg_usd: Money
+    median_usd: Money
+
+
+class AnalyticsByLevel(BaseModel):
+    job_level: str
+    headcount: int
+    total_usd: Money
+    avg_usd: Money
+    median_usd: Money
+

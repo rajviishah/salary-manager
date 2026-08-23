@@ -2,7 +2,7 @@
 
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
-**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee REST APIs are available under `/api`. The UI is next.
+**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The UI is next.
 
 ## Run the API locally (Windows PowerShell)
 
@@ -54,6 +54,20 @@ GET /api/lookups
 Writes: `POST /api/employees` (profile + starting salary, `201`), `PATCH /api/employees/{id}` (profile), `PATCH /api/employees/{id}/salary` (current salary). Duplicate email or employee number returns `409`. Unknown currency or non-positive amount returns `400`. Missing id returns `404`.
 
 Filter dropdown values come from `GET /api/lookups` (`countries`, `departments`, `job_levels`, `statuses` from employees; `currencies` from `fx_rates`).
+
+## Analytics
+
+Pay insights in USD. Local salary is converted as `amount * fx_rates.usd_rate` (the USD value of 1 unit of that currency). Aggregations run in SQL. Default `status=active`; pass `status=inactive` to include only inactive employees.
+
+Money fields are JSON strings (same convention as employee salary).
+
+```
+GET /api/analytics/summary
+GET /api/analytics/summary?status=inactive
+GET /api/analytics/by-country
+GET /api/analytics/by-department
+GET /api/analytics/by-level
+```
 
 ## Seed the database
 
