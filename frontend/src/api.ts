@@ -88,6 +88,44 @@ export type EmployeeCreatePayload = {
   salary: SalaryWrite
 }
 
+export type AnalyticsStatus = 'active' | 'inactive'
+
+export type CurrencyMixItem = {
+  currency: string
+  headcount: number
+  total_local: string
+}
+
+export type AnalyticsSummary = {
+  headcount: number
+  total_usd: string
+  avg_usd: string
+  median_usd: string
+  p90_usd: string
+  min_usd: string
+  max_usd: string
+  currency_mix: CurrencyMixItem[]
+}
+
+export type AnalyticsBreakdownRow = {
+  headcount: number
+  total_usd: string
+  avg_usd: string
+  median_usd: string
+}
+
+export type AnalyticsByCountry = AnalyticsBreakdownRow & {
+  country: string
+}
+
+export type AnalyticsByDepartment = AnalyticsBreakdownRow & {
+  department: string
+}
+
+export type AnalyticsByLevel = AnalyticsBreakdownRow & {
+  job_level: string
+}
+
 export type FormFieldError = {
   name: (string | number)[]
   errors: string[]
@@ -262,4 +300,78 @@ export function updateEmployeeSalary(
 export function formatSalary(salary: Salary | null): string {
   if (!salary) return '—'
   return `${salary.amount} ${salary.currency}`
+}
+
+/** Parse API Decimal JSON strings without treating leftover junk as a number. */
+export function parseDecimal(value: string): number | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  if (!/^-?\d+(\.\d+)?$/.test(trimmed)) return null
+  const n = Number(trimmed)
+  return Number.isFinite(n) ? n : null
+}
+
+export function formatUsd(value: string): string {
+  const n = parseDecimal(value)
+  if (n === null) return '—'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)
+}
+
+export function formatAmount(value: string): string {
+  const n = parseDecimal(value)
+  if (n === null) return '—'
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)
+}
+
+export function formatCompactUsd(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value)
+}
+
+function analyticsPath(path: string, status: AnalyticsStatus): string {
+  const search = new URLSearchParams({ status })
+  return `${path}?${search.toString()}`
+}
+
+export function fetchAnalyticsSummary(
+  status: AnalyticsStatus = 'active',
+): Promise<AnalyticsSummary> {
+  return getJson<AnalyticsSummary>(analyticsPath('/api/analytics/summary', status))
+}
+
+export function fetchAnalyticsByCountry(
+  status: AnalyticsStatus = 'active',
+): Promise<AnalyticsByCountry[]> {
+  return getJson<AnalyticsByCountry[]>(
+    analyticsPath('/api/analytics/by-country', status),
+  )
+}
+
+export function fetchAnalyticsByDepartment(
+  status: AnalyticsStatus = 'active',
+): Promise<AnalyticsByDepartment[]> {
+  return getJson<AnalyticsByDepartment[]>(
+    analyticsPath('/api/analytics/by-department', status),
+  )
+}
+
+export function fetchAnalyticsByLevel(
+  status: AnalyticsStatus = 'active',
+): Promise<AnalyticsByLevel[]> {
+  return getJson<AnalyticsByLevel[]>(
+    analyticsPath('/api/analytics/by-level', status),
+  )
 }

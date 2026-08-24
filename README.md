@@ -2,7 +2,7 @@
 
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
-**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The Employees page is a server-paginated directory (search, country/department/level/status filters, sort). HR can add employees from the directory, then edit profile fields and current salary on the employee detail page. Dashboard charts are not built yet.
+**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The Employees page is a server-paginated directory (search, country/department/level/status filters, sort). HR can add employees from the directory, then edit profile fields and current salary on the employee detail page. The Dashboard answers how the org pays people: USD-normalized headcount, payroll totals, percentiles, currency mix, and breakdowns by country, department, and job level (SQL aggregations, not browser math).
 
 ## Run the API locally (Windows PowerShell)
 
@@ -46,7 +46,7 @@ npm run dev
 
 Open **http://localhost:5173** — not port 8000. Vite proxies `/api` and `/health` to `http://127.0.0.1:8000`, so the browser talks to the UI origin only.
 
-You should see an Ant Design shell titled “ACME Salary Manager” with Dashboard and Employees links. The header badge is `API ok` when FastAPI is up (or `API down` if it is not). The Employees directory supports search, filters, and pagination against `GET /api/employees` (page size 25). Use **Add employee** to `POST /api/employees` (profile plus starting salary). Open a row or **View** to edit profile (`PATCH /api/employees/{id}`) and current salary (`PATCH /api/employees/{id}/salary`). Duplicate email or employee number shows as a conflict; unknown currency or invalid amount is shown from the API. Dashboard charts are not in the UI yet.
+You should see an Ant Design shell titled “ACME Salary Manager” with Dashboard and Employees links. The header badge is `API ok` when FastAPI is up (or `API down` if it is not). Open **Dashboard** for pay insights from `GET /api/analytics/*` (headcount, total/avg/median/p90 USD, currency mix, and country/department/level tables and charts). Toggle Active/Inactive; figures default to active employees and convert via the FX table. The Employees directory supports search, filters, and pagination against `GET /api/employees` (page size 25). Use **Add employee** to `POST /api/employees` (profile plus starting salary). Open a row or **View** to edit profile (`PATCH /api/employees/{id}`) and current salary (`PATCH /api/employees/{id}/salary`). Duplicate email or employee number shows as a conflict; unknown currency or invalid amount is shown from the API.
 
 ## API
 
