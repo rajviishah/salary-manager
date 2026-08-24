@@ -2,7 +2,7 @@
 
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
-**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The UI is next.
+**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The Vite + React UI is a scaffold (layout, routes, live health check, tiny employee preview) — not the full directory or dashboard yet.
 
 ## Run the API locally (Windows PowerShell)
 
@@ -26,15 +26,27 @@ cd backend
 
 You can also activate from Command Prompt with `.\.venv\Scripts\activate.bat`.
 
-You must run uvicorn from `backend/` so `app.main:app` can be imported. After it prints `Uvicorn running on http://127.0.0.1:8000`, open:
+You must run uvicorn from `backend/` so `app.main:app` can be imported. After it prints `Uvicorn running on http://127.0.0.1:8000`, the API is at:
 
 - http://127.0.0.1:8000 — JSON landing page (`name`, `status`, links to health and docs)
 - http://127.0.0.1:8000/health — `{"status":"ok"}` (same payload at `/api/health`)
 - http://127.0.0.1:8000/docs — Swagger UI (HTML, not JSON)
 
-There is no frontend yet. The browser at `/` should show JSON, not a website.
-
 Optional: copy `.env.example` to `.env` to override `DATABASE_URL` or `CORS_ORIGINS`. Defaults already point at `backend/data/salary.db` and `http://localhost:5173`.
+
+## Run the UI locally (second terminal)
+
+Node.js 20+ is required. Keep the API running in the first terminal, then:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open **http://localhost:5173** — not port 8000. Vite proxies `/api` and `/health` to `http://127.0.0.1:8000`, so the browser talks to the UI origin only.
+
+You should see an Ant Design shell titled “ACME Salary Manager” with Dashboard and Employees links. The header badge is `API ok` when FastAPI is up (or `API down` if it is not). Employees is a crude preview: five names plus a total count from `GET /api/employees?page=1&page_size=5`. Dashboard charts and the full filtered table are not in this scaffold.
 
 ## API
 
@@ -104,4 +116,9 @@ cd backend
 python -m pytest -q
 ```
 
-The UI is not built yet.
+Frontend typecheck + production bundle (from `frontend/`):
+
+```powershell
+cd frontend
+npm run build
+```
