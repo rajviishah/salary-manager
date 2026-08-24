@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: "8000"
+      STATIC_DIR: /app/frontend/dist
+      SEED_ON_STARTUP: "true"
+    volumes:
+      # Local only: keep SQLite across compose restarts. Render disks are ephemeral.
+      - sqlite-data:/app/data
+
+volumes:
+  sqlite-data:

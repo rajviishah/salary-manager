@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     database_url: str = f"sqlite:///{_DEFAULT_DB_PATH.as_posix()}"
     cors_origins: list[str] = ["http://localhost:5173"]
+    # Directory that contains Vite's index.html (frontend/dist or Docker copy).
+    static_dir: str | None = None
+    seed_on_startup: bool = True
 
     @field_validator("cors_origins", mode="before")
     @classmethod

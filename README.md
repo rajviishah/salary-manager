@@ -2,7 +2,9 @@
 
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
-**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The Employees page is a server-paginated directory (search, country/department/level/status filters, sort). HR can add employees from the directory, then edit profile fields and current salary on the employee detail page. The Dashboard answers how the org pays people: USD-normalized headcount, payroll totals, percentiles, currency mix, and breakdowns by country, department, and job level (SQL aggregations, not browser math).
+**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees (also on process start if the employee table is empty). Employee and analytics REST APIs are available under `/api`. In production the same FastAPI process serves the Vite build. The Employees page is a server-paginated directory (search, country/department/level/status filters, sort). HR can add employees from the directory, then edit profile fields and current salary on the employee detail page. The Dashboard answers how the org pays people: USD-normalized headcount, payroll totals, percentiles, currency mix, and breakdowns by country, department, and job level (SQL aggregations, not browser math).
+
+Assessment notes: `docs/ARCHITECTURE.md`, `docs/TRADEOFFS.md`, `docs/PERFORMANCE.md`, `docs/DEMO.md`, `docs/AI_USAGE.md`.
 
 ## Run the API locally (Windows PowerShell)
 
@@ -122,3 +124,38 @@ Frontend typecheck + production bundle (from `frontend/`):
 cd frontend
 npm run build
 ```
+
+With `frontend/dist` present, run uvicorn from `backend/` and open http://127.0.0.1:8000 — FastAPI serves the UI. The client already fetches `/api/...` and `/health` (same origin). Vite’s `localhost:8000` proxy is **dev only**.
+
+## Run with Docker (local)
+
+Docker Desktop (or another Compose-capable engine) is required.
+
+```powershell
+docker compose up --build
+```
+
+Open **http://localhost:8000**. First start with an empty database seeds 10,000 employees (often 10–30 seconds) before the UI is useful; logs will say when seed runs or is skipped. Compose mounts a volume on `/app/data` so local SQLite survives container restarts. `SEED_ON_STARTUP=false` skips that insert.
+
+## Deploy on Render (free tier)
+
+You need your own GitHub repo and Render account. This project is **one Web Service** (Docker), not an API plus a static site.
+
+1. Push `main` to GitHub (this slice is not committed for you).
+2. In [Render](https://dashboard.render.com): **New** → **Web Service**.
+3. Connect the GitHub account if prompted, then select this repository.
+4. Set **Language / Runtime** to **Docker** (Render uses the root `Dockerfile`). Leave the Docker context as the repo root.
+5. Pick the **Free** instance type.
+6. Health check path: `/health` (Render setting; the image listens on `0.0.0.0` and `$PORT`, often `10000`).
+7. You do not need `CORS_ORIGINS` for same-origin UI. Optional: `SEED_ON_STARTUP=true` (default in the image).
+8. Create the service and wait for the **first deploy**. The build compiles the frontend, then the boot **seeds 10k rows if the DB is empty** (10–30s is normal). When the deploy is Live, open the `onrender.com` URL.
+
+### Honest caveats (free Render)
+
+- The instance **sleeps after idle**. The next request waits for a cold start.
+- **SQLite is not durable** on the free web filesystem. Sleep/restart typically **wipes data**; startup seed runs again on an empty file. Do not treat this as production payroll storage.
+- First request after a wipe is slow (boot + seed). Local Docker with a volume does not have that wipe.
+
+## Demo (2–3 min)
+
+Dashboard (USD totals and breakdowns) → Employees (filter/search/page) → open a row and edit current salary. Full script: `docs/DEMO.md`.
