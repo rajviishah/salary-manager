@@ -2,7 +2,7 @@
 
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
-**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The Vite + React UI is a scaffold (layout, routes, live health check, tiny employee preview) — not the full directory or dashboard yet.
+**Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees. Employee and analytics REST APIs are available under `/api`. The Employees page is a server-paginated directory (search, country/department/level/status filters, sort) with a read-only detail view; dashboard charts and salary edits are not built yet.
 
 ## Run the API locally (Windows PowerShell)
 
@@ -46,7 +46,7 @@ npm run dev
 
 Open **http://localhost:5173** — not port 8000. Vite proxies `/api` and `/health` to `http://127.0.0.1:8000`, so the browser talks to the UI origin only.
 
-You should see an Ant Design shell titled “ACME Salary Manager” with Dashboard and Employees links. The header badge is `API ok` when FastAPI is up (or `API down` if it is not). Employees is a crude preview: five names plus a total count from `GET /api/employees?page=1&page_size=5`. Dashboard charts and the full filtered table are not in this scaffold.
+You should see an Ant Design shell titled “ACME Salary Manager” with Dashboard and Employees links. The header badge is `API ok` when FastAPI is up (or `API down` if it is not). The Employees directory supports search, filters, and pagination against `GET /api/employees` (page size 25). Dashboard charts are not in the UI yet.
 
 ## API
 

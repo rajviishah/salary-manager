@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { fetchHealth } from './api.ts'
 import DashboardPage from './pages/DashboardPage.tsx'
+import EmployeeDetailPage from './pages/EmployeeDetailPage.tsx'
 import EmployeesPage from './pages/EmployeesPage.tsx'
 
 const { Header, Content } = Layout
@@ -49,7 +50,7 @@ export default function App() {
       <Content style={{ padding: 24, background: '#f5f5f5' }}>
         <div
           style={{
-            maxWidth: 960,
+            maxWidth: 1280,
             margin: '0 auto',
             background: '#fff',
             padding: 24,
@@ -59,6 +60,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/employees" element={<EmployeesPage />} />
+            <Route path="/employees/:id" element={<EmployeeDetailPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
