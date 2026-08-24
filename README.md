@@ -1,5 +1,7 @@
 # ACME Salary Manager
 
+DEMO LINK: https://salary-manager-6dno.onrender.com/employees
+
 HR tool for searching employees, updating current salary, and viewing pay insights. Product requirements are in `docs/requirements.md`.
 
 **Current status.** SQLAlchemy models and Pydantic schemas exist for `employees`, `salaries`, and `fx_rates`. Tables are created on API startup via `Base.metadata.create_all` (no Alembic yet — deliberate for this assessment). A deterministic seed loads 10,000 employees (also on process start if the employee table is empty). Employee and analytics REST APIs are available under `/api`. In production the same FastAPI process serves the Vite build. The Employees page is a server-paginated directory (search, country/department/level/status filters, sort). HR can add employees from the directory, then edit profile fields and current salary on the employee detail page. The Dashboard answers how the org pays people: USD-normalized headcount, payroll totals, percentiles, currency mix, and breakdowns by country, department, and job level (SQL aggregations, not browser math).
