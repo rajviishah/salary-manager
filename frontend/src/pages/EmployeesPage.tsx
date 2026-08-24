@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { fetchEmployees, fetchLookups, formatSalary } from '../api.ts'
 import type { Employee } from '../api.ts'
+import { lookupOptions } from '../formOptions.ts'
+import EmployeeCreateModal from './EmployeeCreateModal.tsx'
 
 const PAGE_SIZE = 25
 const DEFAULT_SORT = 'last_name'
@@ -51,13 +53,10 @@ function apiSortFromTable(
   return DEFAULT_SORT
 }
 
-function lookupOptions(values: string[] | undefined) {
-  return (values ?? []).map((value) => ({ label: value, value }))
-}
-
 export default function EmployeesPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [createOpen, setCreateOpen] = useState(false)
 
   const qFromUrl = searchParams.get('q') ?? ''
   const country = searchParams.get('country') ?? undefined
@@ -219,11 +218,32 @@ export default function EmployeesPage() {
 
   return (
     <>
-      <Typography.Title level={3}>Employees</Typography.Title>
-      <Typography.Paragraph type="secondary">
-        Search and filter the directory. Open a row for a read-only profile;
-        salary edits come later.
-      </Typography.Paragraph>
+      <Space
+        align="start"
+        style={{ width: '100%', justifyContent: 'space-between' }}
+      >
+        <div>
+          <Typography.Title level={3} style={{ marginBottom: 8 }}>
+            Employees
+          </Typography.Title>
+          <Typography.Paragraph type="secondary">
+            Search and filter the directory. Open a row to edit profile and
+            current salary, or add an employee who is not in the seed data.
+          </Typography.Paragraph>
+        </div>
+        <Button type="primary" onClick={() => setCreateOpen(true)}>
+          Add employee
+        </Button>
+      </Space>
+
+      <EmployeeCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(employeeId) => {
+          setCreateOpen(false)
+          navigate(`/employees/${employeeId}`)
+        }}
+      />
 
       <Space wrap style={{ marginBottom: 16 }} size="middle">
         <Input.Search
